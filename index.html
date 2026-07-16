@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Book a Garage Door Repair</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Work+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --charcoal:#1C2321;
+    --charcoal-2:#26302D;
+    --steel:#5B6D70;
+    --steel-light:#94A6A8;
+    --cream:#F2EEE3;
+    --panel:#FFFFFF;
+    --line:#DAD4C4;
+    --yellow:#F2B400;
+    --yellow-dark:#B8860A;
+    --rust:#D9622B;
+    --green:#2E7D5B;
+    --ink:#1C2321;
+    --ink-soft:#5B655F;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--cream);
+    font-family:'Work Sans',sans-serif;
+    color:var(--ink);
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    padding:0 0 40px;
+  }
+  .app{
+    width:100%;
+    max-width:480px;
+    min-height:100vh;
+    background:var(--panel);
+    display:flex;
+    flex-direction:column;
+    box-shadow:0 0 40px rgba(0,0,0,0.08);
+    position:relative;
+  }
+
+  /* ---- Header / hazard strip ---- */
+  .hazard{
+    height:6px;
+    width:100%;
+    background:repeating-linear-gradient(135deg,var(--yellow) 0 14px,var(--charcoal) 14px 28px);
+    flex-shrink:0;
+  }
+  header.top{
+    background:var(--charcoal);
+    color:var(--cream);
+    padding:18px 20px 16px;
+    flex-shrink:0;
+  }
+  .brand{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+  }
+  .brand-name{
+    font-family:'Oswald',sans-serif;
+    font-weight:600;
+    letter-spacing:0.03em;
+    font-size:15px;
+    text-transform:uppercase;
+    color:var(--yellow);
+  }
+  .brand-phone{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    color:var(--steel-light);
+  }
+  .brand-phone a{color:var(--steel-light);text-decoration:none;}
+
+  /* ---- Track / progress rail (signature element) ---- */
+  .track-wrap{
+    margin-top:16px;
+  }
+  .track-label{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10.5px;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:var(--steel-light);
+    margin-bottom:6px;
+    display:flex;
+    justify-content:space-between;
+  }
+  .track{
+    position:relative;
+    height:14px;
+    border-radius:3px;
+    background:var(--charcoal-2);
+    border:1px solid #3A453F;
+    display:flex;
+    gap:3px;
+    padding:2px;
+  }
+  .track .panel{
+    flex:1;
+    border-radius:1px;
+    background:#354039;
+    transition:background 0.35s ease, box-shadow 0.35s ease;
+  }
+  .track .panel.filled{
+    background:linear-gradient(180deg,var(--yellow) 0%, var(--yellow-dark) 100%);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,0.5), inset 0 -1px 2px rgba(0,0,0,0.3);
+  }
+  .track .panel.current{
+    background:linear-gradient(180deg,#fff 0%, var(--yellow) 55%, var(--yellow-dark) 100%);
+  }
+
+  /* ---- Body ---- */
+  main{
+    flex:1;
+    padding:28px 20px 12px;
+    display:flex;
+    flex-direction:column;
+  }
+  .step-eyebrow{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:var(--rust);
+    margin-bottom:6px;
+  }
+  h1.step-title{
+    font-family:'Oswald',sans-serif;
+    font-size:26px;
+    font-weight:600;
+    line-height:1.15;
+    margin:0 0 6px;
+    color:var(--ink);
+  }
+  p.step-sub{
+    font-size:14px;
+    color:var(--ink-soft);
+    margin:0 0 22px;
+    line-height:1.5;
+  }
+
+  label{
+    display:block;
+    font-size:12.5px;
+    font-weight:600;
+    color:var(--ink);
+    margin-bottom:6px;
+    margin-top:16px;
+  }
+  label:first-of-type{margin-top:0;}
+  input[type=text], input[type=tel], input[type=email]{
+    width:100%;
+    padding:13px 14px;
+    border:1.5px solid var(--line);
+    border-radius:6px;
+    font-family:'Work Sans',sans-serif;
+    font-size:15px;
+    background:var(--cream);
+    color:var(--ink);
+    outline:none;
+    transition:border-color 0.15s;
+  }
+  input:focus{border-color:var(--rust);}
+  .hint{font-size:12px;color:var(--ink-soft);margin-top:5px;}
+
+  /* choice grid (AI diagnosis) */
+  .choice-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+  }
+  .choice{
+    border:1.5px solid var(--line);
+    background:var(--cream);
+    border-radius:8px;
+    padding:14px 12px;
+    text-align:left;
+    font-family:'Work Sans',sans-serif;
+    font-size:13.5px;
+    font-weight:600;
+    color:var(--ink);
+    cursor:pointer;
+    transition:all 0.15s;
+  }
+  .choice:hover{border-color:var(--steel);}
+  .choice.selected{
+    border-color:var(--rust);
+    background:#FBEFE8;
+    box-shadow:inset 0 0 0 1px var(--rust);
+  }
+  .ai-ack{
+    margin-top:18px;
+    padding:14px 14px;
+    background:var(--charcoal);
+    border-radius:8px;
+    color:var(--cream);
+    font-size:13.5px;
+    line-height:1.5;
+    display:none;
+  }
+  .ai-ack.show{display:block;}
+  .ai-ack .tag{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10px;
+    color:var(--yellow);
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    display:block;
+    margin-bottom:5px;
+  }
+
+  /* photo upload */
+  .dropzone{
+    border:2px dashed var(--line);
+    border-radius:10px;
+    padding:28px 16px;
+    text-align:center;
+    background:var(--cream);
+    cursor:pointer;
+    transition:border-color 0.15s, background 0.15s;
+  }
+  .dropzone.drag{border-color:var(--rust);background:#FBEFE8;}
+  .dropzone svg{margin-bottom:8px;}
+  .dropzone p{margin:0;font-size:13.5px;color:var(--ink-soft);}
+  .dropzone .dz-main{font-weight:600;color:var(--ink);font-size:14.5px;margin-bottom:4px;}
+  .thumbs{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:8px;
+    margin-top:14px;
+  }
+  .thumb{
+    position:relative;
+    aspect-ratio:1;
+    border-radius:6px;
+    overflow:hidden;
+    border:1px solid var(--line);
+  }
+  .thumb img{width:100%;height:100%;object-fit:cover;display:block;}
+  .thumb button{
+    position:absolute;top:2px;right:2px;
+    width:18px;height:18px;
+    border-radius:50%;
+    background:rgba(28,35,33,0.75);
+    color:#fff;border:none;font-size:11px;line-height:1;
+    cursor:pointer;
+  }
+
+  /* price estimate */
+  .estimate-card{
+    background:var(--charcoal);
+    border-radius:10px;
+    padding:20px;
+    color:var(--cream);
+  }
+  .estimate-card .label{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10.5px;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:var(--steel-light);
+  }
+  .estimate-card .range{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:34px;
+    font-weight:600;
+    color:var(--yellow);
+    margin:6px 0 10px;
+  }
+  .estimate-card .desc{font-size:13.5px;color:#D8D3C4;line-height:1.5;}
+  .estimate-footnote{
+    margin-top:14px;
+    font-size:12.5px;
+    color:var(--ink-soft);
+    line-height:1.5;
+    padding:12px 14px;
+    background:var(--cream);
+    border-radius:8px;
+    border:1px solid var(--line);
+  }
+  .estimate-footnote b{color:var(--ink);}
+
+  /* address autocomplete */
+  .ac-wrap{position:relative;}
+  .ac-list{
+    position:absolute;
+    top:calc(100% + 4px);
+    left:0;right:0;
+    background:var(--panel);
+    border:1.5px solid var(--line);
+    border-radius:8px;
+    max-height:220px;
+    overflow-y:auto;
+    z-index:5;
+    box-shadow:0 8px 20px rgba(0,0,0,0.12);
+    display:none;
+  }
+  .ac-list.show{display:block;}
+  .ac-item{
+    padding:11px 14px;
+    font-size:13.5px;
+    cursor:pointer;
+    border-bottom:1px solid var(--line);
+  }
+  .ac-item:last-child{border-bottom:none;}
+  .ac-item:hover{background:var(--cream);}
+  .ac-item .street{font-weight:600;display:block;}
+  .ac-item .rest{color:var(--ink-soft);font-size:12px;}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+
+  /* schedule */
+  .day-tabs{
+    display:flex;
+    gap:8px;
+    overflow-x:auto;
+    padding-bottom:4px;
+    margin-bottom:16px;
+  }
+  .day-tab{
+    flex-shrink:0;
+    border:1.5px solid var(--line);
+    background:var(--cream);
+    border-radius:8px;
+    padding:10px 14px;
+    text-align:center;
+    cursor:pointer;
+    min-width:64px;
+  }
+  .day-tab .dname{font-size:11px;font-weight:600;color:var(--ink-soft);text-transform:uppercase;letter-spacing:0.03em;}
+  .day-tab .dnum{font-family:'Oswald',sans-serif;font-size:18px;font-weight:600;color:var(--ink);}
+  .day-tab.active{border-color:var(--rust);background:#FBEFE8;}
+  .slots{display:flex;flex-direction:column;gap:8px;}
+  .slot{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    border:1.5px solid var(--line);
+    border-radius:8px;
+    padding:12px 14px;
+    cursor:pointer;
+    background:var(--cream);
+  }
+  .slot .time{font-weight:600;font-size:14px;}
+  .slot .spots{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    color:var(--green);
+  }
+  .slot .spots.low{color:var(--rust);}
+  .slot.selected{border-color:var(--rust);background:#FBEFE8;}
+  .slot.full{opacity:0.4;cursor:not-allowed;}
+  .slot.full .spots{color:var(--ink-soft);}
+
+  /* review */
+  .review-list{border-top:1px solid var(--line);}
+  .review-row{
+    display:flex;justify-content:space-between;gap:12px;
+    padding:12px 0;border-bottom:1px solid var(--line);
+    font-size:13.5px;
+  }
+  .review-row .k{color:var(--ink-soft);}
+  .review-row .v{font-weight:600;text-align:right;}
+
+  /* confirmation / sms mock */
+  .confirm-wrap{text-align:center;padding:10px 0 20px;}
+  .check{
+    width:56px;height:56px;border-radius:50%;
+    background:var(--green);
+    display:flex;align-items:center;justify-content:center;
+    margin:0 auto 18px;
+  }
+  .sms-bubble{
+    background:var(--charcoal);
+    color:var(--cream);
+    border-radius:16px 16px 16px 4px;
+    padding:16px 18px;
+    text-align:left;
+    font-size:14px;
+    line-height:1.55;
+    margin:18px 0;
+  }
+  .sms-meta{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--steel-light);margin-bottom:14px;text-align:center;}
+  .sms-reply{
+    display:inline-block;margin-top:10px;
+    background:var(--yellow);color:var(--charcoal);
+    font-weight:700;font-size:12px;letter-spacing:0.03em;
+    padding:8px 14px;border-radius:6px;
+  }
+
+  /* footer nav */
+  footer.nav{
+    display:flex;
+    gap:10px;
+    padding:16px 20px 22px;
+    border-top:1px solid var(--line);
+    flex-shrink:0;
+  }
+  button.btn{
+    font-family:'Work Sans',sans-serif;
+    font-weight:700;
+    font-size:14.5px;
+    border-radius:8px;
+    padding:14px 18px;
+    border:none;
+    cursor:pointer;
+    flex:1;
+    transition:opacity 0.15s, transform 0.1s;
+  }
+  button.btn:active{transform:scale(0.98);}
+  .btn-primary{background:var(--rust);color:#fff;}
+  .btn-primary:disabled{background:#D9C9B8;color:#fff;cursor:not-allowed;}
+  .btn-ghost{background:var(--cream);color:var(--ink);border:1.5px solid var(--line);flex:0 0 92px;}
+
+  /* abandonment recovery banner */
+  .recover-banner{
+    position:fixed;
+    bottom:0;left:0;right:0;
+    display:flex;
+    justify-content:center;
+    z-index:50;
+    padding:14px;
+    pointer-events:none;
+  }
+  .recover-card{
+    pointer-events:auto;
+    max-width:440px;width:100%;
+    background:var(--charcoal);
+    color:var(--cream);
+    border-radius:12px;
+    padding:16px 18px;
+    box-shadow:0 12px 30px rgba(0,0,0,0.3);
+    transform:translateY(120%);
+    transition:transform 0.35s cubic-bezier(.2,.8,.2,1);
+  }
+  .recover-card.show{transform:translateY(0);}
+  .recover-card .rc-title{font-weight:700;font-size:14px;margin-bottom:4px;}
+  .recover-card .rc-sub{font-size:12.5px;color:var(--steel-light);margin-bottom:12px;line-height:1.4;}
+  .rc-actions{display:flex;gap:8px;}
+  .rc-actions button{
+    flex:1;border:none;border-radius:7px;padding:9px 10px;font-size:12.5px;font-weight:700;cursor:pointer;
+  }
+  .rc-primary{background:var(--yellow);color:var(--charcoal);}
+  .rc-ghost{background:transparent;color:var(--steel-light);border:1px solid #3A453F !important;}
+
+  .toast{
+    position:fixed;top:16px;left:50%;transform:translateX(-50%) translateY(-20px);
+    background:var(--green);color:#fff;
+    padding:11px 18px;border-radius:8px;font-size:13px;font-weight:600;
+    opacity:0;transition:all 0.25s;
+    z-index:60;
+    max-width:90%;
+    text-align:center;
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+  @media (max-width:400px){
+    .choice-grid{grid-template-columns:1fr 1fr;}
+  }
+</style>
+</head>
+<body>
+
+<div class="app" id="app">
+  <div class="hazard"></div>
+  <header class="top">
+    <div class="brand">
+      <div class="brand-name">Valley Garage Door Co.</div>
+      <div class="brand-phone">Need help now? <a href="tel:6613700750">661-370-0750</a></div>
+    </div>
+    <div class="track-wrap">
+      <div class="track-label"><span id="trackLabel">Step 1 of 7</span><span id="trackPct">14%</span></div>
+      <div class="track" id="track"></div>
+    </div>
+  </header>
+
+  <main id="main"></main>
+  <footer class="nav" id="nav"></footer>
+</div>
+
+<div class="recover-banner"><div class="recover-card" id="recoverCard">
+  <div class="rc-title">Still there?</div>
+  <div class="rc-sub">Need help with your garage door? We can still get you scheduled today — no need to start over.</div>
+  <div class="rc-actions">
+    <button class="rc-ghost" id="rcDismiss">Keep going</button>
+    <button class="rc-primary" id="rcText">Text me a link</button>
+  </div>
+</div></div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ---------------- state ---------------- */
+const STEPS = ["contact","problem","photos","estimate","address","schedule","review","done"];
+const VISIBLE_STEPS = 7; // "done" isn't part of the track
+let stepIndex = 0;
+
+const state = {
+  name:"", phone:"", email:"",
+  problem:null,
+  photos:[],
+  street:"", city:"", zip:"",
+  day:null, slot:null,
+  daysData:null
+};
+
+const PROBLEMS = {
+  "wont-open":{label:"Door won't open", note:"Could be a broken cable, misaligned track, or a blocked safety sensor.", low:120, high:280},
+  "noise":{label:"Loud noise / grinding", note:"Usually worn rollers or hinges that need lubrication or replacement.", low:90, high:220},
+  "spring":{label:"Broken spring", note:"Our most common call — we carry torsion and extension springs on the truck.", low:180, high:380},
+  "remote":{label:"Remote / opener issue", note:"Could be a dead battery, bad sensor, or a failing opener motor.", low:75, high:250},
+  "off-track":{label:"Door off track", note:"The door has slipped loose from its rollers or track alignment.", low:150, high:320},
+  "install":{label:"New installation", note:"Full door replacement, including hardware and haul-away of the old door.", low:900, high:2200},
+  "other":{label:"Something else", note:"Tell us more on-site and we'll diagnose it for you.", low:89, high:89}
+};
+
+const ADDRESS_BOOK = [
+  {street:"24501 Town Center Dr", city:"Valencia", zip:"91355"},
+  {street:"27201 Tourney Rd", city:"Valencia", zip:"91355"},
+  {street:"22722 Soledad Canyon Rd", city:"Santa Clarita", zip:"91350"},
+  {street:"19045 Golden Valley Rd", city:"Santa Clarita", zip:"91387"},
+  {street:"23920 Valencia Blvd", city:"Valencia", zip:"91355"},
+  {street:"18730 Soledad Canyon Rd", city:"Canyon Country", zip:"91351"},
+  {street:"28212 Kelly Johnson Pkwy", city:"Valencia", zip:"91355"},
+  {street:"26541 Bouquet Canyon Rd", city:"Santa Clarita", zip:"91350"}
+];
+
+const SLOT_POOL = ["8:00–10:00 AM","9:00–11:00 AM","10:00 AM–12:00 PM","11:00 AM–1:00 PM","12:00–2:00 PM","2:00–4:00 PM","3:00–5:00 PM","4:00–6:00 PM"];
+
+function buildDays(){
+  const names = ["Today","Tomorrow"];
+  const dayMs = 86400000;
+  const base = new Date();
+  const out = [];
+  for(let i=0;i<5;i++){
+    const d = new Date(base.getTime()+i*dayMs);
+    const label = i<2 ? names[i] : d.toLocaleDateString(undefined,{weekday:'short'});
+    const num = d.getDate();
+    const slots = SLOT_POOL.map(t=>{
+      const r = Math.random();
+      let spots;
+      if(r<0.28) spots = 0;
+      else if(r<0.55) spots = 1;
+      else if(r<0.8) spots = 2;
+      else spots = 3;
+      return {time:t, spots};
+    }).filter((s,idx)=> !(i===0 && idx<2)); // today: earliest windows already passed
+    out.push({label, num, slots});
+  }
+  return out;
+}
+state.daysData = buildDays();
+
+/* ---------------- rendering ---------------- */
+const mainEl = document.getElementById('main');
+const navEl = document.getElementById('nav');
+const trackEl = document.getElementById('track');
+const trackLabel = document.getElementById('trackLabel');
+const trackPct = document.getElementById('trackPct');
+
+function renderTrack(){
+  trackEl.innerHTML='';
+  const n = VISIBLE_STEPS;
+  const cur = Math.min(stepIndex,n-1);
+  for(let i=0;i<n;i++){
+    const p = document.createElement('div');
+    p.className='panel'+(i<cur?' filled':'')+(i===cur?' current':'');
+    trackEl.appendChild(p);
+  }
+  if(stepIndex<STEPS.length-1){
+    trackLabel.textContent = `Step ${Math.min(stepIndex+1,n)} of ${n}`;
+    trackPct.textContent = Math.round(((cur)/n)*100)+'%';
+  } else {
+    trackLabel.textContent = "Booked";
+    trackPct.textContent = "100%";
+  }
+}
+
+function esc(s){ return (s||"").replace(/[<>&]/g,c=>({"<":"&lt;",">":"&gt;","&":"&amp;"}[c])); }
+
+function go(delta){
+  stepIndex = Math.max(0, Math.min(STEPS.length-1, stepIndex+delta));
+  render();
+}
+
+function render(){
+  renderTrack();
+  const step = STEPS[stepIndex];
+  mainEl.innerHTML = '';
+  navEl.innerHTML = '';
+  RENDERERS[step]();
+  window.scrollTo(0,0);
+}
+
+/* ---------------- footer nav helper ---------------- */
+function renderNav({backHidden=false, primaryLabel="Continue", onPrimary, primaryDisabled=false}={}){
+  if(!backHidden){
+    const back = document.createElement('button');
+    back.className='btn btn-ghost';
+    back.textContent='Back';
+    back.onclick=()=>go(-1);
+    navEl.appendChild(back);
+  }
+  const primary = document.createElement('button');
+  primary.className='btn btn-primary';
+  primary.textContent=primaryLabel;
+  primary.disabled=primaryDisabled;
+  primary.onclick=onPrimary;
+  navEl.appendChild(primary);
+}
+
+/* ================= STEP RENDERERS ================= */
+const RENDERERS = {};
+
+/* --- 1. contact --- */
+RENDERERS.contact = function(){
+  mainEl.innerHTML = `
+    <div class="step-eyebrow">Step 1 · Get started</div>
+    <h1 class="step-title">Let's get you scheduled</h1>
+    <p class="step-sub">Just your name and number to start — we'll ask about the problem next.</p>
+    <label for="fName">First name</label>
+    <input type="text" id="fName" placeholder="Enter your first name" value="${esc(state.name)}">
+    <label for="fPhone">Phone number</label>
+    <input type="tel" id="fPhone" placeholder="(661) 000-0000" value="${esc(state.phone)}">
+    <div class="hint">We'll text you a confirmation — no spam, ever.</div>
+    <label for="fEmail">Email <span style="font-weight:400;color:var(--ink-soft);">(optional)</span></label>
+    <input type="email" id="fEmail" placeholder="Enter your email" value="${esc(state.email)}">
+  `;
+  const fName=document.getElementById('fName'), fPhone=document.getElementById('fPhone'), fEmail=document.getElementById('fEmail');
+  function sync(){
+    state.name=fName.value; state.phone=fPhone.value; state.email=fEmail.value;
+    updatePrimary();
+    if(state.phone.replace(/\D/g,'').length>=10){ armAbandonment(); }
+  }
+  [fName,fPhone,fEmail].forEach(el=>el.addEventListener('input',sync));
+
+  function updatePrimary(){
+    const ok = state.name.trim().length>0 && state.phone.replace(/\D/g,'').length>=10;
+    primaryBtn.disabled=!ok;
+  }
+  renderNav({backHidden:true, onPrimary:()=>go(1), primaryDisabled:true});
+  var primaryBtn = navEl.querySelector('.btn-primary');
+  updatePrimary();
+};
+
+/* --- 2. problem / AI diagnosis --- */
+RENDERERS.problem = function(){
+  mainEl.innerHTML = `
+    <div class="step-eyebrow">Step 2 · Quick diagnosis</div>
+    <h1 class="step-title">What's going on with your door?</h1>
+    <p class="step-sub">This helps us send the right technician with the right parts already on the truck.</p>
+    <div class="choice-grid" id="grid"></div>
+    <div class="ai-ack" id="ack"></div>
+  `;
+  const grid = document.getElementById('grid');
+  Object.entries(PROBLEMS).forEach(([key,p])=>{
+    const b=document.createElement('button');
+    b.className='choice'+(state.problem===key?' selected':'');
+    b.textContent=p.label;
+    b.onclick=()=>{ state.problem=key; render(); };
+    grid.appendChild(b);
+  });
+  if(state.problem){
+    const p = PROBLEMS[state.problem];
+    const ack=document.getElementById('ack');
+    ack.classList.add('show');
+    ack.innerHTML = `<span class="tag">Got it</span>${esc(p.label)} — ${esc(p.note)}`;
+  }
+  renderNav({onPrimary:()=>go(1), primaryDisabled:!state.problem});
+};
+
+/* --- 3. photos --- */
+RENDERERS.photos = function(){
+  mainEl.innerHTML = `
+    <div class="step-eyebrow">Step 3 · Optional</div>
+    <h1 class="step-title">Add a photo of the problem</h1>
+    <p class="step-sub">A quick photo helps your technician arrive with the right parts and skip a return trip.</p>
+    <div class="dropzone" id="dz">
+      <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#5B655F" stroke-width="1.6"><path d="M4 16l4.5-6 3.5 4.5 2.5-3 5.5 6.5"/><circle cx="8" cy="8" r="1.8"/><rect x="3" y="4" width="18" height="16" rx="2"/></svg>
+      <p class="dz-main">Tap to add photos</p>
+      <p>or drag and drop — JPG or PNG</p>
+    </div>
+    <input type="file" id="fileInput" accept="image/*" multiple style="display:none">
+    <div class="thumbs" id="thumbs"></div>
+  `;
+  const dz=document.getElementById('dz'), fileInput=document.getElementById('fileInput'), thumbs=document.getElementById('thumbs');
+  dz.onclick=()=>fileInput.click();
+  ['dragover'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.add('drag');}));
+  ['dragleave','drop'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.remove('drag');}));
+  dz.addEventListener('drop',e=>{ handleFiles(e.dataTransfer.files); });
+  fileInput.addEventListener('change',e=>handleFiles(e.target.files));
+
+  function handleFiles(fileList){
+    Array.from(fileList).forEach(file=>{
+      if(!file.type.startsWith('image/')) return;
+      const reader = new FileReader();
+      reader.onload = e=>{ state.photos.push(e.target.result); renderThumbs(); };
+      reader.readAsDataURL(file);
+    });
+  }
+  function renderThumbs(){
+    thumbs.innerHTML='';
+    state.photos.forEach((src,i)=>{
+      const t=document.createElement('div'); t.className='thumb';
+      t.innerHTML = `<img src="${src}"><button data-i="${i}">✕</button>`;
+      t.querySelector('button').onclick=(e)=>{ e.stopPropagation(); state.photos.splice(i,1); renderThumbs(); };
+      thumbs.appendChild(t);
+    });
+  }
+  renderThumbs();
+  renderNav({primaryLabel: state.photos.length? "Continue" : "Skip for now", onPrimary:()=>go(1)});
+};
+
+/* --- 4. estimate --- */
+RENDERERS.estimate = function(){
+  const p = PROBLEMS[state.problem] || PROBLEMS.other;
+  const priceStr = p.low===p.high ? `$${p.low}` : `$${p.low}–$${p.high}`;
+  mainEl.innerHTML = `
+    <div class="step-eyebrow">Step 4 · What to expect</div>
+    <h1 class="step-title">Here's your instant estimate</h1>
+    <p class="step-sub">Based on what you told us. Your technician will confirm the exact price on-site before any work begins.</p>
+    <div class="estimate-card">
+      <div class="label">${esc(p.label)}</div>
+      <div class="range">${priceStr}</div>
+      <div class="desc">${esc(p.note)}</div>
+    </div>
+    <div class="estimate-footnote"><b>$89 service call fee</b> — waived and applied toward the repair if you approve the work.</div>
+  `;
+  renderNav({onPrimary:()=>go(1)});
+};
+
+/* --- 5. address --- */
+RENDERERS.address = function(){
+  mainEl.innerHTML = `
+    <div class="step-eyebrow">Step 5 · Where to send the technician</div>
+    <h1 class="step-title">What's the address?</h1>
+    <p class="step-sub">Start typing and pick your address — we'll fill in the rest.</p>
+    <label for="fStreet">Street address</label>
+    <div class="ac-wrap">
+      <input type="text" id="fStreet" placeholder="Start typing your address" value="${esc(state.street)}" autocomplete="off">
+      <div class="ac-list" id="acList"></div>
+    </div>
+    <div class="row2">
+      <div>
+        <label for="fCity">City</label>
+        <input type="text" id="fCity" placeholder="City" value="${esc(state.city)}">
+      </div>
+      <div>
+        <label for="fZip">Zip code</label>
+        <input type="text" id="fZip" placeholder="Zip code" value="${esc(state.zip)}">
+      </div>
+    </div>
+  `;
+  const fStreet=document.getElementById('fStreet'), acList=document.getElementById('acList');
+  const fCity=document.getElementById('fCity'), fZip=document.getElementById('fZip');
+
+  fStreet.addEventListener('input', ()=>{
+    state.street = fStreet.value;
+    const q = fStreet.value.trim().toLowerCase();
+    updatePrimary();
+    if(q.length<2){ acList.classList.remove('show'); return; }
+    const matches = ADDRESS_BOOK.filter(a=> a.street.toLowerCase().includes(q));
+    if(!matches.length){ acList.classList.remove('show'); return; }
+    acList.innerHTML = matches.map(a=>`<div class="ac-item" data-s="${esc(a.street)}" data-c="${esc(a.city)}" data-z="${esc(a.zip)}"><span class="street">${esc(a.street)}</span><span class="rest">${esc(a.city)}, CA ${esc(a.zip)}</span></div>`).join('');
+    acList.classList.add('show');
+    acList.querySelectorAll('.ac-item').forEach(el=>{
+      el.onclick=()=>{
+        fStreet.value = el.dataset.s; state.street = el.dataset.s;
+        fCity.value = el.dataset.c; state.city = el.dataset.c;
+        fZip.value = el.dataset.z; state.zip = el.dataset.z;
+        acList.classList.remove('show');
+        updatePrimary();
+      };
+    });
+  });
+  document.addEventListener('click', (e)=>{ if(!e.target.closest('.ac-wrap')) acList.classList.remove('show'); });
+  fCity.addEventListener('input', ()=>{ state.city=fCity.value; updatePrimary(); });
+  fZip.addEventListener('input', ()=>{ state.zip=fZip.value; updatePrimary(); });
+
+  function updatePrimary(){
+    const ok = state.street.trim().length>3 && state.city.trim().length>0 && state.zip.trim().length>=4;
+    primaryBtn.disabled=!ok;
+  }
+  renderNav({onPrimary:()=>go(1), primaryDisabled:true});
+  var primaryBtn = navEl.querySelector('.btn-primary');
+  updatePrimary();
+};
+
+/* --- 6. schedule --- */
+RENDERERS.schedule = function(){
+  if(state.day===null) state.day=0;
+  mainEl.innerHTML = `
+    <div class="step-eyebrow">Step 6 · Real-time availability</div>
+    <h1 class="step-title">Pick a time that works</h1>
+    <p class="step-sub">These are live openings on our technicians' routes.</p>
+    <div class="day-tabs" id="dayTabs"></div>
+    <div class="slots" id="slotsWrap"></div>
+  `;
+  const dayTabs=document.getElementById('dayTabs'), slotsWrap=document.getElementById('slotsWrap');
+  state.daysData.forEach((d,i)=>{
+    const t=document.createElement('div');
+    t.className='day-tab'+(state.day===i?' active':'');
+    t.innerHTML = `<div class="dname">${esc(d.label)}</div><div class="dnum">${d.num}</div>`;
+    t.onclick=()=>{ state.day=i; state.slot=null; render(); };
+    dayTabs.appendChild(t);
+  });
+  const day = state.daysData[state.day];
+  slotsWrap.innerHTML='';
+  day.slots.forEach(s=>{
+    const full = s.spots===0;
+    const el=document.createElement('div');
+    el.className='slot'+(full?' full':'')+((!full && state.slot===s.time)?' selected':'');
+    const spotsLabel = full? 'Full' : (s.spots===1? '1 spot left' : (s.spots<=2? `${s.spots} spots left` : 'Available'));
+    el.innerHTML = `<span class="time">${s.time}</span><span class="spots${s.spots===1?' low':''}">${spotsLabel}</span>`;
+    if(!full){ el.onclick=()=>{ state.slot=s.time; render(); }; }
+    slotsWrap.appendChild(el);
+  });
+  renderNav({onPrimary:()=>go(1), primaryDisabled: !state.slot});
+};
+
+/* --- 7. review --- */
+RENDERERS.review = function(){
+  const p = PROBLEMS[state.problem]||PROBLEMS.other;
+  const day = state.daysData[state.day];
+  mainEl.innerHTML = `
+    <div class="step-eyebrow">Step 7 · Almost done</div>
+    <h1 class="step-title">Review your appointment</h1>
+    <p class="step-sub">Confirm the details below and we'll lock in your slot.</p>
+    <div class="review-list">
+      <div class="review-row"><span class="k">Name</span><span class="v">${esc(state.name)}</span></div>
+      <div class="review-row"><span class="k">Phone</span><span class="v">${esc(state.phone)}</span></div>
+      <div class="review-row"><span class="k">Problem</span><span class="v">${esc(p.label)}</span></div>
+      <div class="review-row"><span class="k">Estimate</span><span class="v">${p.low===p.high?`$${p.low}`:`$${p.low}–$${p.high}`}</span></div>
+      <div class="review-row"><span class="k">Photos</span><span class="v">${state.photos.length? state.photos.length+' attached':'None'}</span></div>
+      <div class="review-row"><span class="k">Address</span><span class="v">${esc(state.street)}, ${esc(state.city)} ${esc(state.zip)}</span></div>
+      <div class="review-row"><span class="k">Appointment</span><span class="v">${esc(day.label)}, ${esc(state.slot)}</span></div>
+    </div>
+  `;
+  renderNav({primaryLabel:"Confirm & book", onPrimary:()=>{ disarmAbandonment(); go(1); }});
+};
+
+/* --- 8. done / confirmation (SMS mock) --- */
+RENDERERS.done = function(){
+  const day = state.daysData[state.day];
+  mainEl.innerHTML = `
+    <div class="confirm-wrap">
+      <div class="check"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><path d="M4 12l5 5L20 6"/></svg></div>
+      <h1 class="step-title" style="text-align:center;">You're booked</h1>
+      <p class="step-sub" style="text-align:center;">We texted a confirmation to ${esc(state.phone)||'your phone'}.</p>
+      <div class="sms-meta">TEXT MESSAGE PREVIEW</div>
+      <div class="sms-bubble">
+        Thanks ${esc(state.name)||'there'}! Your appointment is scheduled for <b>${esc(day.label)}, ${esc(state.slot)}</b>.<br><br>
+        Reply YES to confirm.
+        <div class="sms-reply">Reply YES</div>
+      </div>
+    </div>
+  `;
+  renderNav({backHidden:true, primaryLabel:"Book another appointment", onPrimary:()=>{ location.reload(); }});
+};
+
+/* ---------------- abandonment / lead-recovery ---------------- */
+let idleTimer=null;
+let armed=false;
+let recovered=false;
+const recoverCard=document.getElementById('recoverCard');
+const toastEl=document.getElementById('toast');
+
+function armAbandonment(){
+  if(armed) return;
+  armed=true;
+  resetIdle();
+  ['mousemove','keydown','touchstart','click'].forEach(ev=>document.addEventListener(ev, resetIdle));
+  document.addEventListener('visibilitychange', ()=>{
+    if(document.hidden===false && armed && !recovered && STEPS[stepIndex]!=="done"){
+      showRecover();
+    }
+  });
+}
+function disarmAbandonment(){ armed=false; recovered=true; clearTimeout(idleTimer); hideRecover(); }
+function resetIdle(){
+  if(!armed || recovered) return;
+  clearTimeout(idleTimer);
+  hideRecover();
+  idleTimer=setTimeout(showRecover, 20000);
+}
+function showRecover(){
+  if(!armed || recovered || STEPS[stepIndex]==="done") return;
+  recoverCard.classList.add('show');
+}
+function hideRecover(){ recoverCard.classList.remove('show'); }
+
+document.getElementById('rcDismiss').onclick = ()=>{ hideRecover(); resetIdle(); };
+document.getElementById('rcText').onclick = ()=>{
+  hideRecover();
+  showToast(`We texted ${state.phone||'your phone'} a link to finish booking.`);
+  clearTimeout(idleTimer);
+};
+function showToast(msg){
+  toastEl.textContent = msg;
+  toastEl.classList.add('show');
+  setTimeout(()=>toastEl.classList.remove('show'), 3200);
+}
+
+/* ---------------- init ---------------- */
+render();
+</script>
+</body>
+</html>
